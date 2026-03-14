@@ -1,9 +1,28 @@
 services:
-  # A Docker web service
   - type: web
-    name: fastapi-example
+    name: flighttime-api
     runtime: python
-    plan: free
-    autoDeploy: false
+    rootDir: backend
+    plan: starter
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: flighttime-db
+          property: connectionString
+      - key: APP_BASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: SQUARE_PAYMENT_LINK_URL
+        sync: false
+
+databases:
+  - name: flighttime-db
+    databaseName: flighttime_athletics
+    plan: basic-256mb
